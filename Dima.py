@@ -3,7 +3,7 @@ This script runs the cloud_photo_gallery application using a development server.
 """
 
 from os import environ
-from cloud_photo_gallery import app
+from PROHJ_LOJ import app
 import sys
 
 if __name__ == '__main__':
