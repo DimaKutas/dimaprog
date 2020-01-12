@@ -16,7 +16,7 @@ app.secret_key = b'r2q35b4536y5yasdfg5656y98543h394yhtr7834t3490tsrtg'
 def verify_password(username, password):
 	conn = sqlite3.connect('db.db')
 	cur = conn.cursor()
-	cur.execute('select * from users where username = ?', (username))
+	cur.execute('select * from users where username = ?', (username, ))
 	try:
 		userdata = cur.fetchone()
 	except TypeError:  # If user not exists
