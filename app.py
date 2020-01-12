@@ -153,7 +153,7 @@ def index():
 @db_connect
 def init(cur, conn):
     cur.execute("""
-		create table users (
+		create table IF NOT EXISTS users (
 		 userid INTEGER PRIMARY KEY,
 		 username TEXT NOT NULL UNIQUE,
 		 password TEXT NOT NULL
@@ -161,7 +161,7 @@ def init(cur, conn):
 		""")
     conn.commit()
 	    cur.execute("""
-		create table water (
+		create table IF NOT EXISTS water (
 		 waterid INTEGER PRIMARY KEY,
 		 Name TEXT NOT NULL UNIQUE,
 		 Ca TEXT NOT NULL,
