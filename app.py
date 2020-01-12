@@ -12,6 +12,11 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 app.secret_key = b'r2q35b4536y5yasdfg5656y98543h394yhtr7834t3490tsrtg'
 
+@auth.hash_password
+def hash_pw(username, password):
+    salt = get_salt(username)
+    return hash(password, salt)
+
 @auth.verify_password
 def verify_password(username, password):
 	conn = sqlite3.connect('db.db')
@@ -19,11 +24,12 @@ def verify_password(username, password):
 	cur.execute('select * from users where username = ?', (username, ))
 	try:
 		userdata = cur.fetchone()
+		id = userdata[0]
 	except TypeError:  # If user not exists
 		session['userid'] = None
 		conn.close()
 		return False
-	is_authenticated = check_password_hash(userdata[2], password)
+	is_authenticated = check_password_hash(userdata[2], hash_password(username, password))
 	if is_authenticated:
 		session['userid'] = int(userdata[0])
 	else:
