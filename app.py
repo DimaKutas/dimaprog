@@ -93,24 +93,26 @@ def get_all_products(cur, conn):
     water = {i[0]: dict(zip(format_data.split(','), i[1:])) for i in cur.fetchall() if find is None or i[0] == find}
     return jsonify(water)
 
+@app.route('/users', methods=['POST'])
+@db_connect
+def signup(cur, conn):
+    username = request.args.get('username', default=None)
+    password = request.args.get('password', default=None)
+    if None in (username, password):
+        return jsonify({'Action': 'Register user', 'State': 'Error'})
+    else:
+        cur.execute('insert into users(username, password) values(?, ?)', (username, generate_password_hash(password)))
+        conn.commit()
+        return jsonify({'Action': 'Register user', 'State': 'Success'})
 
-@app.route('/users', methods=['POST', 'GET'])
+
+@app.route('/users', methods=['GET'])
 @auth.login_required
 @db_connect
-def users(cur, conn):
-    if request.method == 'POST':
-        username = request.args.get('username', default=None)
-        password = request.args.get('password', default=None)
-        if None in (username, password):
-            return jsonify({'Action': 'Register user', 'State': 'Error'})
-        else:
-            cur.execute('insert into users(username, password) values(?, ?)', (username, generate_password_hash(password)))
-            conn.commit()
-            return jsonify({'Action': 'Register user', 'State': 'Success'})
-    elif request.method == 'GET':
-        users = cur.execute("select userid, username from users").fetchall()
-        users_json = [dict(zip(('userid', 'username'), user)) for user in users]
-        return jsonify(users_json)
+def login(cur, conn):
+    users = cur.execute("select userid, username from users").fetchall()
+    users_json = [dict(zip(('userid', 'username'), user)) for user in users]
+    return jsonify(users_json)
 
 
 @app.route('/users/<userid>', methods=['PUT', 'GET', 'DELETE'])
