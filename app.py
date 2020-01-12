@@ -77,7 +77,7 @@ def refresh_db(cur, conn):
 		readCSV = csv.reader(csvfile, delimiter=';')
 		for row in readCSV:
 			print(row)
-			if row[0] != 'Name':
+			if len(row[0]) > 0 and row[0] != 'Name':
 				cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
 				values (?, ?, ?, ?)""", (row[0], row[1], row[2], row[3]))
 				conn.commit()
