@@ -44,7 +44,7 @@ def db_connect(function_to_decorate):
 #delete all users even if you not logged in
 @app.route('/users_clear_force', methods=['GET'])
 @db_connect
-def refresh_db(cur, conn):
+def force_refresh_db(cur, conn):
     cur.execute('delete from users')
     conn.commit()
     return jsonify({'Action': 'Force users clear', 'State': 'Success'})
