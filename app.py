@@ -21,15 +21,17 @@ def hash_pw(username, password):
 def verify_password(username, password):
 	conn = sqlite3.connect('db.db')
 	cur = conn.cursor()
-	cur.execute('select * from users where username = ?', (username, ))
+	cur.execute('select * from users where username like ?', (username, ))
+	print('Login attempt',username,':', password) #debug print
 	try:
 		userdata = cur.fetchone()
+		print('Fetched',userdata) #debug print
 		id = userdata[0]
 	except TypeError:  # If user not exists
 		session['userid'] = None
 		conn.close()
 		return False
-	is_authenticated = check_password_hash(userdata[2], hash_password(username, password))
+	is_authenticated = check_password_hash(userdata[2], password)
 	if is_authenticated:
 		session['userid'] = int(userdata[0])
 	else:
