@@ -76,7 +76,7 @@ def refresh_db(cur, conn):
 	with open('water.csv') as csvfile:
 		readCSV = csv.reader(csvfile)
 		for row in readCSV:
-			if row[0] != 'Название':
+			if row[0] != 'Name':
 				cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
 				values (?, ?, ?, ?)""", (' '.join(row[0], row[1], row[2], row[3])))
 				conn.commit()
@@ -105,8 +105,11 @@ def signup(cur, conn):
 	if None in (username, password):
 		return jsonify({'Action': 'Register user', 'State': 'Error'})
 	else:
-		cur.execute('insert into users(username, password) values(?, ?)', (username, generate_password_hash(password)))
-		conn.commit()
+		try:
+			cur.execute('insert into users(username, password) values(?, ?)', (username, generate_password_hash(password)))
+			conn.commit()
+		except sqlite3.Error:
+			return jsonify({'Action': 'Register user', 'State': 'Already exists'})
 		return jsonify({'Action': 'Register user', 'State': 'Success'})
 
 @app.route('/users', methods=['GET'])
