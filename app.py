@@ -174,7 +174,7 @@ def init(cur, conn):
 port = os.environ.get('PORT')
 
 if __name__ == '__main__':
-	init()
+    init()
     app.run(host= '0.0.0.0', threaded=True, port=port)
 
 """
