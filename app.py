@@ -88,13 +88,12 @@ def refresh_db(cur, conn):
 @auth.login_required
 @db_connect
 def get_all_products(cur, conn):
-	format_data = request.args.get('format', default='Ca,Mg,F') # bilki,zhiri,uglevodi,voda,kkal
-	if len(format_data) > 0:
-		format_data = ','+format_data
+	format_data = request.args.get('format', default='Ca,Mg,F')
 	find = request.args.get('find', default=None)
-	if set(format_data.split(',')) > set('water_id,calcium,magnium,ftor'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
+	if set(format_data.split(',')) > set('id,Ca,Mg,F'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
 		return jsonify({'Action': 'get all products', 'State': 'Error'})
-	cur.execute("select Name {} from water".format(format_data))
+	print(format_data)
+	cur.execute("select Name {} from water".format( ', '+format_data if len(format_data) > 0 else ''))
 	water = {i[0]: dict(zip(format_data.split(','), i[1:])) for i in cur.fetchall() if find is None or i[0] == find}
 	return jsonify(water)
 
