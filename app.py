@@ -90,7 +90,7 @@ def refresh_db(cur, conn):
 def get_all_products(cur, conn):
 	format_data = request.args.get('format', default='Ca,Mg,F')
 	find = request.args.get('find', default=None)
-	if set(format_data.split(',')) > set('id,Ca,Mg,F'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
+	if set(format_data.split(',')) > set('waterid,Ca,Mg,F'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
 		return jsonify({'Action': 'get all products', 'State': 'Error'})
 	print(format_data)
 	cur.execute("select Name {} from water".format( ', '+format_data if len(format_data) > 0 else ''))
