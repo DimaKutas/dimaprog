@@ -153,22 +153,22 @@ def index():
 @db_connect
 def init(cur, conn):
     cur.execute("""
-		create table IF NOT EXISTS users (
-		 userid INTEGER PRIMARY KEY,
-		 username TEXT NOT NULL UNIQUE,
-		 password TEXT NOT NULL
-		)
-		""")
+        create table IF NOT EXISTS users (
+         userid INTEGER PRIMARY KEY,
+         username TEXT NOT NULL UNIQUE,
+         password TEXT NOT NULL
+        )
+        """)
     conn.commit()
-	    cur.execute("""
-		create table IF NOT EXISTS water (
-		 waterid INTEGER PRIMARY KEY,
-		 Name TEXT NOT NULL UNIQUE,
-		 Ca TEXT NOT NULL,
-		 Mg TEXT NOT NULL,
-		 F TEXT NOT NULL
-		)
-		""")
+    cur.execute("""
+        create table IF NOT EXISTS water (
+         waterid INTEGER PRIMARY KEY,
+         Name TEXT NOT NULL UNIQUE,
+         Ca TEXT NOT NULL,
+         Mg TEXT NOT NULL,
+         F TEXT NOT NULL
+        )
+        """)
     conn.commit()
 
 port = os.environ.get('PORT')
