@@ -95,28 +95,14 @@ def get_all_products(cur, conn):
 @app.route('/users', methods=['POST'])
 @db_connect
 def signup(cur, conn):
-	username = request.form.get('username', default=None)
-	password = request.form.get('password', default=None)
+	username = request.args.get('username', default=None)
+	password = request.args.get('password', default=None)
 	if None in (username, password):
 		return jsonify({'Action': 'Register user', 'State': 'Error'})
 	else:
 		cur.execute('insert into users(username, password) values(?, ?)', (username, generate_password_hash(password)))
 		conn.commit()
 		return jsonify({'Action': 'Register user', 'State': 'Success'})
-
-@app.route('/login', methods=['POST'])
-@db_connect
-def login(cur, conn):
-	username = request.form.get('username', default=None)
-	password = request.form.get('password', default=None)
-	if None in (username, password):
-		return jsonify({'Action': 'Login user', 'State': 'Error'})
-	else:
-		if verify_password(username,password):
-			auth.login()
-			return jsonify({'Action': 'Login user', 'State': 'Success'})
-		else:
-			jsonify({'Action': 'Login user', 'State': 'Not Found'})
 
 @app.route('/users', methods=['GET'])
 @auth.login_required
