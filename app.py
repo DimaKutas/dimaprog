@@ -22,10 +22,8 @@ def verify_password(username, password):
 	conn = sqlite3.connect('db.db')
 	cur = conn.cursor()
 	cur.execute('select * from users where username like ?', (username, ))
-	print('Login attempt',username,':', password) #debug print
 	try:
 		userdata = cur.fetchone()
-		print('Fetched',userdata) #debug print
 		id = userdata[0]
 	except TypeError:  # If user not exists
 		session['userid'] = None
@@ -84,7 +82,6 @@ def refresh_db(cur, conn):
 				conn.commit()
 			
 	return jsonify({'Action': 'Refresh data', 'State': 'Success'})
-
 
 @app.route('/products')
 @auth.login_required
@@ -160,7 +157,7 @@ def index():
 def init(cur, conn):
 	cur.execute("""
 		create table IF NOT EXISTS users (
-		 userid INTEGER PRIMARY KEY,
+		 userid INTEGER PRIMARY KEY AUTOINCREMENT,
 		 username TEXT NOT NULL UNIQUE,
 		 password TEXT NOT NULL
 		)
@@ -168,7 +165,7 @@ def init(cur, conn):
 	conn.commit()
 	cur.execute("""
 		create table IF NOT EXISTS water (
-		 waterid INTEGER PRIMARY KEY,
+		 waterid INTEGER PRIMARY KEY AUTOINCREMENT,
 		 Name TEXT NOT NULL UNIQUE,
 		 Ca TEXT NOT NULL,
 		 Mg TEXT NOT NULL,
