@@ -150,10 +150,31 @@ def user(cur, conn, userid):
 def index():
     return "<h1>IT works !!</h1>"
 
+@db_connect
+def init(cur, conn):
+    cur.execute("""
+		create table users (
+		 userid INTEGER PRIMARY KEY,
+		 username TEXT NOT NULL UNIQUE,
+		 password TEXT NOT NULL
+		)
+		""")
+    conn.commit()
+	    cur.execute("""
+		create table water (
+		 waterid INTEGER PRIMARY KEY,
+		 Name TEXT NOT NULL UNIQUE,
+		 Ca TEXT NOT NULL,
+		 Mg TEXT NOT NULL,
+		 F TEXT NOT NULL
+		)
+		""")
+    conn.commit()
 
 port = os.environ.get('PORT')
 
 if __name__ == '__main__':
+	init()
     app.run(host= '0.0.0.0', threaded=True, port=port)
 
 """
@@ -173,13 +194,5 @@ users/<userid>      - GET/PUT/DELETE    - Отображает пользова�
                                         - Редактирует пользователя с таким ИД, если он ваш
                                             Аргумент password
                                         - Удаляет пользователя с таким ИД, если он ваш
-
-recieps             - GET/POST          - Отображает все !ваши! рецепты
-                                        - Добавляет новый рецепт
-
-recieps/<id>        - GET/PUT/DELETE    - Отображает данные о рецепте с таким ид, может быть не вашим
-                                        - Изменяет рецепт, если он ваш
-                                            Аргумент components
-                                        - Удаляет рецепт, если он ваш
 
 """
