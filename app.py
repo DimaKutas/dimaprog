@@ -79,7 +79,7 @@ def refresh_db(cur, conn):
 			print(row)
 			if row[0] != 'Name':
 				cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
-				values (?, ?, ?, ?)""", (' '.join(row[0], row[1], row[2], row[3])))
+				values (?, ?, ?, ?)""", (row[0], row[1], row[2], row[3]))
 				conn.commit()
 			
 	return jsonify({'Action': 'Refresh data', 'State': 'Success'})
