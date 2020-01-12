@@ -74,10 +74,8 @@ def refresh_db(cur, conn):
 	cur.execute("delete from sqlite_sequence where name='water'")
 	conn.commit()
 	with open('water.csv') as csvfile:
-		readCSV = csv.reader(csvfile)
+		readCSV = csv.reader(csvfile, delimiter=';')
 		for row in readCSV:
-			print(row)
-			row = row[0].split(';')
 			print(row)
 			if row[0] != 'Name':
 				cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
