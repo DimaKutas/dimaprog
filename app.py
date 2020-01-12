@@ -1,10 +1,12 @@
-﻿from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from lxml import html
 import requests
 import sqlite3
 import os
+import csv
+
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -39,26 +41,53 @@ def db_connect(function_to_decorate):
     wrapper.__name__ = function_to_decorate.__name__
     return wrapper
 
+#delete all users even if you not logged in
+@app.route('/users_clear_force', methods=['GET'])
+@db_connect
+def refresh_db(cur, conn):
+    cur.execute('delete from users')
+    conn.commit()
+    return jsonify({'Action': 'Force users clear', 'State': 'Success'})
+
+#delete all users exepct current
+@app.route('/users_clear', methods=['GET'])
+@auth.login_required
+@db_connect
+def refresh_db(cur, conn):
+    cur.execute("delete from users where username not like '%" + auth.username() + "'")
+    conn.commit()
+    return jsonify({'Action': 'Users clear', 'State': 'Success'})
+    
+# delete from users where username not like '%auth.username()';
 
 @app.route('/db_refresh', methods=['POST'])
 @auth.login_required
 @db_connect
 def refresh_db(cur, conn):
-    cur.execute('delete from ingridients')
+    cur.execute('delete from water')
     conn.commit()
-    cur.execute("delete from sqlite_sequence where name='ingridients'")
+    cur.execute("delete from sqlite_sequence where name='water'")
     conn.commit()
-    try:
-        req = requests.get('http://m.woman.ru/health/diets/article/88057/').text
-    except ConnectionError:
-        return jsonify({'Action': 'Refresh data', 'State': 'Error'})
-    result = html.fromstring(req).xpath('//tr')
-    for r in result[4:]:
-        prod = r.text_content().split()
-        if prod[0] != 'Продукт':
-            cur.execute("""insert or ignore into ingridients(Name_nm, Bilki, Zhiri, Uglevodi, Voda, Kkal) 
-            values (?, ?, ?, ?, ?, ?)""", (' '.join(prod[:-5]), prod[-4], prod[-3], prod[-2], prod[-5], prod[-1]))
-            conn.commit()
+    #try:
+    #    req = requests.get('http://m.woman.ru/health/diets/article/88057/').text
+    #except ConnectionError:
+    #    return jsonify({'Action': 'Refresh data', 'State': 'Error'})
+    #result = html.fromstring(req).xpath('//tr')
+    #for r in result[4:]:
+    #    prod = r.text_content().split()
+    #    if prod[0] != 'Продукт':
+    #        cur.execute("""insert or ignore into ingridients(Name_nm, Bilki, Zhiri, Uglevodi, Voda, Kkal) 
+    #        values (?, ?, ?, ?, ?, ?)""", (' '.join(prod[:-5]), prod[-4], prod[-3], prod[-2], prod[-5], prod[-1]))
+    #        conn.commit()
+            
+    with open('water.csv') as csvfile:
+        readCSV = csv.reader(csvfile)
+        for row in readCSV:
+            if row[0] != 'Название':
+                cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
+                values (?, ?, ?, ?)""", (' '.join(row[0], row[1], row[2], row[3])))
+                conn.commit()
+            
     return jsonify({'Action': 'Refresh data', 'State': 'Success'})
 
 
@@ -66,13 +95,15 @@ def refresh_db(cur, conn):
 @auth.login_required
 @db_connect
 def get_all_products(cur, conn):
-    format_data = request.args.get('format', default='ingridient_id,bilki,zhiri,uglevodi,voda,kkal') # bilki,zhiri,uglevodi,voda,kkal
+    format_data = request.args.get('format', default='Ca,Mg,F') # bilki,zhiri,uglevodi,voda,kkal
+    if len(format_data) > 0:
+        format_data = ','+format_data
     find = request.args.get('find', default=None)
-    if set(format_data.split(',')) > set('ingridient_id,bilki,zhiri,uglevodi,voda,kkal'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
+    if set(format_data.split(',')) > set('water_id,calcium,magnium,ftor'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
         return jsonify({'Action': 'get all products', 'State': 'Error'})
-    cur.execute("select Name_nm, {} from ingridients".format(format_data))
-    ingridients = {i[0]: dict(zip(format_data.split(','), i[1:])) for i in cur.fetchall() if find is None or i[0] == find}
-    return jsonify(ingridients)
+    cur.execute("select Name {} from water".format(format_data))
+    water = {i[0]: dict(zip(format_data.split(','), i[1:])) for i in cur.fetchall() if find is None or i[0] == find}
+    return jsonify(water)
 
 
 @app.route('/users', methods=['POST', 'GET'])
@@ -123,69 +154,6 @@ def user(cur, conn, userid):
             return jsonify({'Action': 'Delete user', 'State': 'Success'})
         else:
             return jsonify({'Action': 'Delete user', 'State': 'Error'})
-
-
-
-@app.route('/recieps', methods=['GET', 'POST'])
-@auth.login_required
-@db_connect
-def recieps(cur, conn):
-    if request.method == 'POST':
-        components = request.args.get('components', default=None)
-        if components is None:
-            return jsonify({'Action': 'Add reciept', 'State': 'Error'})
-        try:
-            components = components.split(',')
-            components = list(map(int, components))
-        except ValueError:
-            return jsonify({'Action': 'Add reciept', 'State': 'Error'})
-
-        cur.execute('insert into user_recieps(user, components) values (?, ?)',
-                    (session['userid'], ','.join(components)))
-        conn.commit()
-        return jsonify({'Action': 'Add reciept', 'State': 'Success'})
-    elif request.method == 'GET':
-        recieps = cur.execute("select * from user_recieps where user = ?", (session['userid'],)).fetchall()
-        recieps_json = [dict(zip(('user', 'id_reciept', 'components'), reciep)) for reciep in recieps]
-        return jsonify(recieps_json)
-
-
-@app.route('/recieps/<rid>', methods=['PUT', 'GET', 'DELETE'])
-@auth.login_required
-@db_connect
-def reciept(cur, conn, rid):
-    try:
-        rid = int(rid)
-    except ValueError:
-        return jsonify({'Action': 'Reciep', 'State': 'Error'})
-
-    if request.method == 'PUT':
-        components = request.args.get('components', default=None)
-        if components is None:
-            return jsonify({'Action': 'Add reciept', 'State': 'Error'})
-        try:
-            components = components.split(',')
-            components = list(map(int, components))
-        except ValueError:
-            return jsonify({'Action': 'Add reciept', 'State': 'Error'})
-
-        cur.execute('update user_recieps set components = ? where id_reciept = ? and user = ?',
-                    (','.join(components), rid, session['userid']))
-        conn.commit()
-        return jsonify({'Action': 'Edit reciept', 'State': 'Success'})
-    elif request.method == 'GET':
-        recieps = cur.execute("select * from user_recieps where id_reciept = ?", (rid,)).fetchall()
-        recieps_json = [dict(zip(('user', 'id_reciept', 'components'), reciep)) for reciep in recieps]
-        for i in recieps_json:
-            format_data = 'ingridient_id, bilki, zhiri, uglevodi, voda, kkal'
-            cur.execute("select * from ingridients where ingridient_id in ({})".format(i['components']))
-            ingridients = {i[0]: dict(zip(format_data.split(','), i[1:])) for i in cur.fetchall()}
-            i['components'] = jsonify(ingridients)
-        return jsonify(recieps_json)
-    elif request.method == 'DELETE':
-        cur.execute('delete from user_recieps where user = ? and id_reciept = ?', (session['userid'], rid))
-        conn.commit()
-        return jsonify({'Action': 'Delete reciept', 'State': 'Success'})
 
 
 @app.route('/')
