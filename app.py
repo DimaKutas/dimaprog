@@ -44,7 +44,7 @@ def db_connect(function_to_decorate):
 #delete all users even if you not logged in
 @app.route('/users_clear_force', methods=['GET'])
 @db_connect
-def force_refresh_db(cur, conn):
+def force_refresh_users_db(cur, conn):
     cur.execute('delete from users')
     conn.commit()
     return jsonify({'Action': 'Force users clear', 'State': 'Success'})
@@ -53,7 +53,7 @@ def force_refresh_db(cur, conn):
 @app.route('/users_clear', methods=['GET'])
 @auth.login_required
 @db_connect
-def refresh_db(cur, conn):
+def refresh_users_db(cur, conn):
     cur.execute("delete from users where username not like '%" + auth.username() + "'")
     conn.commit()
     return jsonify({'Action': 'Users clear', 'State': 'Success'})
@@ -68,18 +68,6 @@ def refresh_db(cur, conn):
     conn.commit()
     cur.execute("delete from sqlite_sequence where name='water'")
     conn.commit()
-    #try:
-    #    req = requests.get('http://m.woman.ru/health/diets/article/88057/').text
-    #except ConnectionError:
-    #    return jsonify({'Action': 'Refresh data', 'State': 'Error'})
-    #result = html.fromstring(req).xpath('//tr')
-    #for r in result[4:]:
-    #    prod = r.text_content().split()
-    #    if prod[0] != 'Продукт':
-    #        cur.execute("""insert or ignore into ingridients(Name_nm, Bilki, Zhiri, Uglevodi, Voda, Kkal) 
-    #        values (?, ?, ?, ?, ?, ?)""", (' '.join(prod[:-5]), prod[-4], prod[-3], prod[-2], prod[-5], prod[-1]))
-    #        conn.commit()
-            
     with open('water.csv') as csvfile:
         readCSV = csv.reader(csvfile)
         for row in readCSV:
