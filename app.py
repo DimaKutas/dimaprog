@@ -2,63 +2,15 @@ from flask import Flask, jsonify, request, session
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from lxml import html
-import psycopg2
 import requests
 import sqlite3
 import os
 import csv
 
 
-conn = psycopg2.connect(dbname='dalfq63uqmtpmi', user='mddabivmizexmf', 
-                        password='2175132f690ac36344a7c4df840e0c346463f2b91de8a9c5a53b4f0de615d6f2',
-						host='ec2-23-23-224-174.compute-1.amazonaws.com', port='5432')
-cursor = conn.cursor()
-
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 app.secret_key = b'r2q35b4536y5yasdfg5656y98543h394yhtr7834t3490tsrtg'
-
-cursor.execute('''CREATE TABLE WATER
-	(Name TEXT NOT NULL UNIQUE,
-	Ca TEXT NOT NULL,
-	Mg TEXT NOT NULL,
-	F TEXT NOT NULL,
-	Zn TEXT);''')
-conn.commit()
-conn.close()
-#records = cursor.fetchall()
-
-
-
-
-
-
-
-
-
-
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @auth.hash_password
 def hash_pw(username, password):
@@ -232,7 +184,7 @@ if __name__ == '__main__':
 	init()
 	app.run(host= '0.0.0.0', threaded=True, port=port)
 
-
+"""
 
 refresh_db          - POST              - обновляет данные в бд о продуктах. Не принимает аргументов
 
