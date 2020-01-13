@@ -9,9 +9,9 @@ import os
 import csv
 
 
-conn = psycopg2.connect(dbname='daualm39pcpil9', user='gvlcgehvocjssn', 
-                        password='d2b2b050beb73d1e1d7ff483cd985721aae2b4d7f231f6ae706e84ce84a0551d',
-						host='ec2-184-72-235-80.compute-1.amazonaws.com', port='5432')
+conn = psycopg2.connect(dbname='dalfq63uqmtpmi', user='mddabivmizexmf', 
+                        password='2175132f690ac36344a7c4df840e0c346463f2b91de8a9c5a53b4f0de615d6f2',
+						host='ec2-23-23-224-174.compute-1.amazonaws.com', port='5432')
 cursor = conn.cursor()
 
 app = Flask(__name__)
