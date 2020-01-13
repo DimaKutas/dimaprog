@@ -2,11 +2,12 @@ from flask import Flask, jsonify, request, session
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from lxml import html
+import psycopg2
 import requests
 import sqlite3
 import os
 import csv
-import psycopg2
+
 
 conn = psycopg2.connect(dbname='d22nju61npdpf6', user='zyulutofcgnkhn', 
                         password='076f27e73047eada004f838c4085350fca70f3657f9f4f4250e85c2a7296d621',
