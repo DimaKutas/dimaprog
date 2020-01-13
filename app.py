@@ -6,11 +6,58 @@ import requests
 import sqlite3
 import os
 import csv
+import psycopg2
 
+conn = psycopg2.connect(dbname='d22nju61npdpf6', user='zyulutofcgnkhn', 
+                        password='076f27e73047eada004f838c4085350fca70f3657f9f4f4250e85c2a7296d621',
+						host='ec2-174-129-33-156.compute-1.amazonaws.com', port='5432')
+cursor = conn.cursor()
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 app.secret_key = b'r2q35b4536y5yasdfg5656y98543h394yhtr7834t3490tsrtg'
+
+cursor.execute('''CREATE TABLE WATER
+	(Name TEXT NOT NULL UNIQUE,
+	Ca TEXT NOT NULL,
+	Mg TEXT NOT NULL,
+	F TEXT NOT NULL,
+	Zn TEXT);''')
+conn.commit()
+conn.close()
+#records = cursor.fetchall()
+
+
+
+
+
+
+
+
+
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @auth.hash_password
 def hash_pw(username, password):
@@ -184,7 +231,7 @@ if __name__ == '__main__':
 	init()
 	app.run(host= '0.0.0.0', threaded=True, port=port)
 
-"""
+
 
 refresh_db          - POST              - обновляет данные в бд о продуктах. Не принимает аргументов
 
