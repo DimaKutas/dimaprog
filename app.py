@@ -78,8 +78,8 @@ def refresh_db(cur, conn):
 		for row in readCSV:
 			print(row)
 			if len(row[0]) > 0 and row[0] != 'Name':
-				cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
-				values (?, ?, ?, ?)""", (row[0], row[1], row[2], row[3]))
+				cur.execute("""insert or ignore into water(Name, Ca, Mg, F, Z) 
+				values (?, ?, ?, ?, ?)""", (row[0], row[1], row[2], row[3], row[4]))
 				conn.commit()
 							
 	return jsonify({'Action': 'Refresh data', 'State': 'Success'})
