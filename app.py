@@ -78,8 +78,8 @@ def refresh_db(cur, conn):
 		for row in readCSV:
 			print(row)
 			if len(row[0]) > 0 and row[0] != 'Name':
-				cur.execute("""insert or ignore into water(Name, Ca, Mg, F, Z) 
-				values (?, ?, ?, ?, ?)""", (row[0], row[1], row[2], row[3], row[4]))
+				cur.execute("""insert or ignore into water(Name, Ca, Mg, F) 
+				values (?, ?, ?, ?)""", (row[0], row[1], row[2], row[3]))
 				conn.commit()
 							
 	return jsonify({'Action': 'Refresh data', 'State': 'Success'})
@@ -88,9 +88,9 @@ def refresh_db(cur, conn):
 @auth.login_required
 @db_connect
 def get_all_products(cur, conn):
-	format_data = request.args.get('format', default='Ca,Mg,F,Z')
+	format_data = request.args.get('format', default='Ca,Mg,F')
 	find = request.args.get('find', default=None)
-	if set(format_data.split(',')) > set('waterid,Ca,Mg,F,Z'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
+	if set(format_data.split(',')) > set('waterid,Ca,Mg,F'.split(',')):  # Все эл-ты format_data принадлежат всем возможным элементам
 		return jsonify({'Action': 'get all products', 'State': 'Error'})
 	print(format_data)
 	cur.execute("select Name {} from water".format( ', '+format_data if len(format_data) > 0 else ''))
