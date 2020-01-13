@@ -84,7 +84,7 @@ def refresh_db(cur, conn):
 							
 	return jsonify({'Action': 'Refresh data', 'State': 'Success'})
 
-@app.route('/products')
+@app.route('/products'), methods=['GET']
 @auth.login_required
 @db_connect
 def get_all_products(cur, conn):
